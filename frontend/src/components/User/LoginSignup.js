@@ -16,7 +16,7 @@ const location = new ReactLocation()
 
 
 const LoginSignup = () => {
-    const history = createBrowserHistory();
+    const history = useNavigate();
     const dispatch= useDispatch();
     const alert = useAlert();
 
@@ -87,9 +87,7 @@ const LoginSignup = () => {
             dispatch(clearErrors())
         }
         if(isAuthenticated){
-            <Navigate to="/account"/>
-            // history.push(redirect);
-            // window.location.reload();
+            history("/account");
         }
          
     },[dispatch , error , alert ,history,  isAuthenticated]);
