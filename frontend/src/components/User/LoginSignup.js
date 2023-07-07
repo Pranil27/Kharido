@@ -8,14 +8,14 @@ import FaceIcon from '@material-ui/icons/Face'
 import { useDispatch,useSelector } from 'react-redux';
 import { clearErrors,login,register} from '../../actions/userAction';
 import { useAlert } from 'react-alert';
-import { createBrowserHistory } from 'history';
-import { useNavigate } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
-import {  ReactLocation, Router } from 'react-location'
-const location = new ReactLocation()
+import { useNavigate,useLocation } from 'react-router-dom';
+
+
+
 
 
 const LoginSignup = () => {
+    const location = useLocation();
     const history = useNavigate();
     const dispatch= useDispatch();
     const alert = useAlert();
@@ -87,10 +87,10 @@ const LoginSignup = () => {
             dispatch(clearErrors())
         }
         if(isAuthenticated){
-            history("/account");
+            history(redirect);
         }
          
-    },[dispatch , error , alert ,history,  isAuthenticated]);
+    },[dispatch , error , alert ,history,  isAuthenticated,redirect]);
 
 
     const switchTabs = (e,tab) =>{

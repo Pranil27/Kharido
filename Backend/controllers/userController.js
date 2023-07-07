@@ -8,7 +8,7 @@ const cloudinary = require("cloudinary");
 
 
 exports.registerUser = catchAsyncErrors(async(req,res,next)=>{
-  // console.log(req.body.avatar)
+   console.log(req.body.avatar)
   const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
     folder: "avatars",
     width: 150,
@@ -17,7 +17,7 @@ exports.registerUser = catchAsyncErrors(async(req,res,next)=>{
     resource_type: "auto"
   });
 
-  // console.log(myCloud.secure_url);
+   console.log(myCloud.secure_url);
  
   const {name,email,password} = req.body;
   const user = await User.create({
@@ -126,42 +126,65 @@ exports.updatePassword = catchAsyncErrors(async(req,res,next)=> {
   sendToken(user,200,res);
 });
 exports.updateProfile = catchAsyncErrors(async(req,res,next)=> {
-  const newUserData = {
-    name:req.body.name,
-    email:req.body.email,
-  };
+  let newUserData;
 
-//   if (req.body.avatar !== "") {
-//     const user = await User.findById(req.user.id);
+  if (req.body.avatar !== "") {
+    const user = await User.findById(req.user.id);
 
-//     const imageId = user.avatar.public_id;
+    const imageId = user.avatar.public_id;
 
-//     const { result } = await cloudinary.v2.uploader.destroy(imageId);
-// if (result === "not found")
-//   console.log("Please provide correct public_id");
-// if (result !== "ok")
-//   console.log("Try again later.");
+    // console.log(imageId);
+    // console.log(req.body);
 
-
-//   const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-//     folder: "avatars",
-//     width: 150,
-//     crop: "scale",
-//     public_id: `${Date.now()}`, 
-//     resource_type: "auto"
-//   });
+    if(req.body.avatar === 'undefined'){
+      console.log("yes");
+      newUserData = {
+        name:req.body.name,
+        email:req.body.email,
+        avatar:user.avatar,
+      };
+    }
+    else{
+    const { result } = await cloudinary.v2.uploader.destroy(imageId);
+if (result === "not found")
+  console.log("Please provide correct public_id");
+if (result !== "ok")
+  console.log("Try again later.");
 
   
-//   console.log(myCloud);
 
 
-//     newUserData.avatar = {
-//       public_id: myCloud.public_id,
-//       url: myCloud.secure_url,
-//     };
+  const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+    folder: "avatars",
+    width: 150,
+    crop: "scale",
     
-//   }
+  });
 
+  // console.log(req.body.name)
+  // console.log(myCloud);
+  // console.log(req.body.name)
+
+   newUserData = {
+    name:req.body.name,
+    email:req.body.email,
+    avatar:{
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    }
+  };
+
+    }
+
+    
+  }
+
+  else {
+    newUserData = {
+      name:req.body.name,
+      email:req.body.email,
+    };
+  }
 
   const user = await User.findByIdAndUpdate(req.user.id,newUserData,{
     new:true,
@@ -172,6 +195,7 @@ exports.updateProfile = catchAsyncErrors(async(req,res,next)=> {
     success:true,
   });
 });
+
 exports.getAllUser = catchAsyncErrors(async(req,res,next)=> {
   const users = await User.find();
   res.status(200).json({
